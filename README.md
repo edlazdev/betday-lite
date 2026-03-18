@@ -40,10 +40,14 @@ src/
 
 ```bash
 npm install
+cp .env.example .env.local
+# Editar .env.local y definir AUTH_SECRET (ej: openssl rand -base64 32)
 npm run dev
 ```
 
 Abre [http://localhost:3000](http://localhost:3000).
+
+**Login demo:** `demo@betday.dev` / `demo123` (configurable con `DEMO_USER_EMAIL` y `DEMO_USER_PASSWORD` en `.env.local`).
 
 ## Datos (simulación)
 
@@ -55,5 +59,6 @@ Los tipos en `src/types/index.ts` reflejan exactamente estos JSON para usarlos e
 ## Store (estado)
 
 El estado de partidos y apuestas vive en **servidor** (`lib/matches-data.ts`, `lib/bets-store.ts`). Las API routes serán la interfaz; las vistas consumen por `fetch` o Server Components.
+
 
 

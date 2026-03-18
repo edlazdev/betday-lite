@@ -1,5 +1,5 @@
 import type { Bet, Match, Pick } from "@/types";
-import { getOddByPick } from "@/types";
+import { getOddByPick } from "@/lib/helpers";
 import betsMeJson from "@/data/bets.me.json";
 
 const initialBets = (betsMeJson as { bets: Bet[] }).bets;
