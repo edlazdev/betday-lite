@@ -22,7 +22,7 @@ src/
 ├── components/             # Componentes reutilizables
 │   ├── ui/                 # Componentes de UI base
 │   └── ...                 # EventCard, BetCard, etc.
-├── data/                   # JSON estáticos (matches.today.json, bets.me.json)
+├── data/                   # JSON estáticos (matches.today.json)
 ├── lib/                    # Utilidades, stores, datos (matches-data, bets-store)
 ├── types/                  # Tipos alineados con la API/JSON
 └── ...
@@ -52,13 +52,19 @@ Abre [http://localhost:3000](http://localhost:3000).
 ## Datos (simulación)
 
 - **`src/data/matches.today.json`**: partidos del día (`date`, `timezone`, `matches[]`) con liga, equipos y cuotas 1X2 (`home`, `draw`, `away`).
-- **`src/data/bets.me.json`**: apuestas del usuario (`bets[]`) con `matchId`, `pick` (HOME/DRAW/AWAY), `odd`, `stake`, `status` (PENDING/WON/LOST), `return`.
+- Las apuestas del usuario se guardan solo en memoria (sesión) en `lib/bets-store.ts`; no hay JSON inicial.
 
-Los tipos en `src/types/index.ts` reflejan exactamente estos JSON para usarlos en API routes y fetch.
+Los tipos en `src/types/index.ts` reflejan la estructura de partidos y apuestas para API routes y componentes.
 
 ## Store (estado)
 
-El estado de partidos y apuestas vive en **servidor** (`lib/matches-data.ts`, `lib/bets-store.ts`). Las API routes serán la interfaz; las vistas consumen por `fetch` o Server Components.
+- Partidos: `lib/matches-data.ts` (JSON + Server Components en Home).
+- Apuestas: `lib/bets-store.ts` (memoria) vía `GET`/`POST` `/api/bets`, `GET`/`DELETE` `/api/bets/[betId]`. Profile y detalle de apuesta cargan datos con `fetch` a esas rutas (misma instancia del store que las API en dev).
+
+## Despliegue en Vercel
+
+- **Variable obligatoria en producción:** `AUTH_SECRET` (generar con `openssl rand -base64 32`).
+- Opcionales: `AUTH_URL`, `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD`.
 
 
 

@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBetById } from "@/lib/bets-store";
-import { getMatchById } from "@/lib/matches-data";
 
-/**
- * GET /api/bets/[betId]
- * Detalle de una apuesta, enriquecido con datos del partido.
- */
+import { getMatchById } from "@/lib/matches-data";
+import { getBetById, removeBet } from "@/lib/bets-store";
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ betId: string }> }
@@ -13,23 +10,40 @@ export async function GET(
   try {
     const { betId } = await params;
     const bet = getBetById(betId);
-
     if (!bet) {
       return NextResponse.json(
         { error: "Apuesta no encontrada" },
         { status: 404 }
       );
     }
-
     const match = getMatchById(bet.matchId);
-    return NextResponse.json({
-      ...bet,
-      match: match ?? null,
-    });
+    return NextResponse.json({ ...bet, match: match ?? null });
   } catch (error) {
-    console.error("[API /api/bets/[betId]]", error);
+    console.error("[API /api/bets/[betId] GET]", error);
     return NextResponse.json(
       { error: "Error al obtener apuesta" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ betId: string }> }
+) {
+  try {
+    const { betId } = await params;
+    if (!removeBet(betId)) {
+      return NextResponse.json(
+        { error: "Apuesta no encontrada" },
+        { status: 404 }
+      );
+    }
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error("[API /api/bets/[betId] DELETE]", error);
+    return NextResponse.json(
+      { error: "Error al eliminar apuesta" },
       { status: 500 }
     );
   }

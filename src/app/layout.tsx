@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/Header";
+import { ToastProvider } from "@/components/providers/ToastProvider";
 import { APP_NAME } from "@/lib/constants";
 import "./globals.css";
 
@@ -30,8 +31,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-zinc-50 font-sans text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100`}
         suppressHydrationWarning
       >
-        <Header />
-        <main>{children}</main>
+        <ToastProvider>
+          <Header />
+          <main>{children}</main>
+        </ToastProvider>
       </body>
     </html>
   );

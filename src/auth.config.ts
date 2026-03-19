@@ -1,9 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 
-/**
- * Configuración Edge-compatible para el middleware.
- * Solo incluye opciones que pueden ejecutarse en Edge (sin Credentials aquí).
- */
+// Edge: sin Credentials (van en auth.ts)
 export const authConfig = {
   pages: {
     signIn: "/login",
@@ -15,10 +12,10 @@ export const authConfig = {
       const isOnBetDetail = nextUrl.pathname.startsWith("/bets/");
       if (isOnProfile || isOnBetDetail) {
         if (isLoggedIn) return true;
-        return false; // Redirige a signIn (login)
+        return false;
       }
       return true;
     },
   },
-  providers: [], // Credentials se añade en auth.ts (no es Edge-compatible)
+  providers: [],
 } satisfies NextAuthConfig;

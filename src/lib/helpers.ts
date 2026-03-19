@@ -13,3 +13,17 @@ export function getInitials(name: string | null | undefined): string {
 export function getOddByPick(match: Match, pick: Pick): number {
   return match.market.odds[PICK_TO_ODDS_KEY[pick]];
 }
+
+export function truncateText(str: string, max: number): string {
+  if (str.length <= max) return str;
+  return str.slice(0, max).trim() + "…";
+}
+
+export function formatMatchTime(isoDate: string): string {
+  const d = new Date(isoDate);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${day}/${month} • ${hours}:${minutes}`;
+}
