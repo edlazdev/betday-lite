@@ -23,7 +23,7 @@ src/
 │   ├── ui/                 # Componentes de UI base
 │   └── ...                 # EventCard, BetCard, etc.
 ├── data/                   # JSON estáticos (matches.today.json)
-├── lib/                    # Utilidades, stores, datos (matches-data, bets-store)
+├── lib/                    # Utilidades, datos (matches-data, bets-session, internal-fetch)
 ├── types/                  # Tipos alineados con la API/JSON
 └── ...
 ```
@@ -52,14 +52,14 @@ Abre [http://localhost:3000](http://localhost:3000).
 ## Datos (simulación)
 
 - **`src/data/matches.today.json`**: partidos del día (`date`, `timezone`, `matches[]`) con liga, equipos y cuotas 1X2 (`home`, `draw`, `away`).
-- Las apuestas del usuario se guardan solo en memoria (sesión) en `lib/bets-store.ts`; no hay JSON inicial.
+- Las apuestas se persisten en una **cookie httpOnly** ligada al usuario de NextAuth (`betday_bets_<userId>`), ver `lib/bets-session.ts`. Sobrevive al reinicio del servidor; límite práctico ~4 KB por cookie 
 
 Los tipos en `src/types/index.ts` reflejan la estructura de partidos y apuestas para API routes y componentes.
 
 ## Store (estado)
 
 - Partidos: `lib/matches-data.ts` (JSON + Server Components en Home).
-- Apuestas: `lib/bets-store.ts` (memoria) vía `GET`/`POST` `/api/bets`, `GET`/`DELETE` `/api/bets/[betId]`. Profile y detalle de apuesta cargan datos con `fetch` a esas rutas (misma instancia del store que las API en dev).
+- Apuestas: cookie + `lib/bets-session.ts`; API `GET`/`POST` `/api/bets` y `GET`/`DELETE` `/api/bets/[betId]` leen/escriben la cookie según `auth()`. Los Server Components que llaman a la API usan `internalFetch` (`lib/internal-fetch.ts`) para reenviar la cabecera `Cookie`.
 
 ## Despliegue en Vercel
 

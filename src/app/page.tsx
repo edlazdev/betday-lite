@@ -1,12 +1,18 @@
 import { auth } from "@/auth";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import type { SelectedBet } from "@/types";
-import { getAllBets } from "@/lib/bets-store";
 import { HomeTimeline } from "@/components/HomeTimeline";
 import { getMatchesGroupedByHour } from "@/lib/matches-data";
+import {
+  betsCookieName,
+  parseBetsJson,
+  sortBetsByPlacedAt,
+} from "@/lib/bets-session";
 
-function buildSelectedBetsByMatchId(): Record<string, SelectedBet[]> {
-  const bets = getAllBets();
+function selectedBetsByMatchIdFromBets(
+  bets: { id: string; matchId: string; pick: SelectedBet["pick"] }[]
+): Record<string, SelectedBet[]> {
   const map: Record<string, SelectedBet[]> = {};
   for (const b of bets) {
     if (!map[b.matchId]) map[b.matchId] = [];
@@ -20,7 +26,14 @@ export default async function Home() {
   const grouped = getMatchesGroupedByHour();
   const hours = Array.from(grouped.keys());
   const isLoggedIn = !!session?.user;
-  const selectedBetsByMatchId = isLoggedIn ? buildSelectedBetsByMatchId() : {};
+
+  let selectedBetsByMatchId: Record<string, SelectedBet[]> = {};
+  if (session?.user?.id) {
+    const cookieStore = await cookies();
+    const raw = cookieStore.get(betsCookieName(session.user.id))?.value;
+    const bets = sortBetsByPlacedAt(parseBetsJson(raw));
+    selectedBetsByMatchId = selectedBetsByMatchIdFromBets(bets);
+  }
 
   const groupArray = hours.map((hour) => ({
     hour,

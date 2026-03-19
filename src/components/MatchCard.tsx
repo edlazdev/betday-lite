@@ -39,7 +39,10 @@ export function MatchCard({
     if (existing) {
       setLoading(pick);
       try {
-        const res = await fetch(`/api/bets/${existing.betId}`, { method: "DELETE" });
+        const res = await fetch(`/api/bets/${existing.betId}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error ?? FEEDBACK_BET_ERROR);
@@ -61,6 +64,7 @@ export function MatchCard({
     try {
       const res = await fetch("/api/bets", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           matchId: match.id,

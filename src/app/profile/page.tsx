@@ -1,21 +1,13 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { headers } from "next/headers";
-
 import type { BetEnriched } from "@/types";
 import { redirect } from "next/navigation";
 import { BetCard } from "@/components/BetCard";
 import { ROUTES, PROFILE_EMPTY_MESSAGE } from "@/lib/constants";
+import { internalFetch } from "@/lib/internal-fetch";
 
 async function getBetsEnriched(): Promise<BetEnriched[]> {
-  const headersList = await headers();
-  const host =
-    headersList.get("x-forwarded-host") ||
-    headersList.get("host") ||
-    "localhost:3000";
-  const proto = headersList.get("x-forwarded-proto") || "http";
-  const base = `${proto}://${host}`;
-  const res = await fetch(`${base}/api/bets`, { cache: "no-store" });
+  const res = await internalFetch("/api/bets");
   if (!res.ok) return [];
   const data = await res.json();
   return data.bets ?? [];

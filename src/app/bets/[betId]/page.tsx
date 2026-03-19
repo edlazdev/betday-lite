@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import {
@@ -12,20 +11,14 @@ import BetDetailSkeleton from "./loading";
 import { Card } from "@/components/ui/shared";
 import { formatMatchTime } from "@/lib/helpers";
 import type { BetDetailResponse } from "@/types";
+import { internalFetch } from "@/lib/internal-fetch";
 
 type PageProps = { params: Promise<{ betId: string }> };
 
 async function getBetDetail(betId: string): Promise<BetDetailResponse | null> {
-  const headersList = await headers();
-  const host =
-    headersList.get("x-forwarded-host") ||
-    headersList.get("host") ||
-    "localhost:3000";
-  const proto = headersList.get("x-forwarded-proto") || "http";
-  const base = `${proto}://${host}`;
-  const res = await fetch(`${base}/api/bets/${encodeURIComponent(betId)}`, {
-    cache: "no-store",
-  });
+  const res = await internalFetch(
+    `/api/bets/${encodeURIComponent(betId)}`
+  );
   if (!res.ok) return null;
   return res.json();
 }

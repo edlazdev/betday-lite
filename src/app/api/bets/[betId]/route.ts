@@ -1,15 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
+import { auth } from "@/auth";
 import { getMatchById } from "@/lib/matches-data";
-import { getBetById, removeBet } from "@/lib/bets-store";
+import {
+  betsCookieName,
+  findBetById,
+  parseBetsJson,
+  removeBetById,
+  setBetsCookie,
+  sortBetsByPlacedAt,
+} from "@/lib/bets-session";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ betId: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
     const { betId } = await params;
-    const bet = getBetById(betId);
+    const cookieStore = await cookies();
+    const bets = sortBetsByPlacedAt(
+      parseBetsJson(cookieStore.get(betsCookieName(session.user.id))?.value)
+    );
+    const bet = findBetById(bets, betId);
     if (!bet) {
       return NextResponse.json(
         { error: "Apuesta no encontrada" },
@@ -32,14 +50,27 @@ export async function DELETE(
   { params }: { params: Promise<{ betId: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
     const { betId } = await params;
-    if (!removeBet(betId)) {
+    const cookieStore = await cookies();
+    const current = sortBetsByPlacedAt(
+      parseBetsJson(cookieStore.get(betsCookieName(session.user.id))?.value)
+    );
+    const next = removeBetById(current, betId);
+    if (!next) {
       return NextResponse.json(
         { error: "Apuesta no encontrada" },
         { status: 404 }
       );
     }
-    return new NextResponse(null, { status: 204 });
+
+    const res = new NextResponse(null, { status: 204 });
+    setBetsCookie(res, session.user.id, next);
+    return res;
   } catch (error) {
     console.error("[API /api/bets/[betId] DELETE]", error);
     return NextResponse.json(
