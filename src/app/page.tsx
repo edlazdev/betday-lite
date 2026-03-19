@@ -41,7 +41,7 @@ export default async function Home() {
   }));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-4xl px-4 py-6">
       <h1 className="mb-1 text-2xl font-semibold">Partidos del día</h1>
       <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
         Resultado del partido (1X2).{" "}

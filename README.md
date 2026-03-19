@@ -4,28 +4,45 @@ Reto técnico: aplicación de apuestas simuladas (mercado 1x2) con Next.js 15, A
 
 ## Stack
 
-- **Next.js 15** (App Router)
-- **React 18**
-- **TypeScript**
-- **Tailwind CSS**
-- **NextAuth** (autenticación)
+| Capa | Tecnología |
+|------|------------|
+| Framework | Next.js **15** (App Router) |
+| UI | React **18**, TypeScript **5** |
+| Estilos | Tailwind CSS **4** |
+| Auth | **NextAuth v5** (Auth.js), proveedor **Credentials**, sesión **JWT** |
+| Lint | ESLint **9** + `eslint-config-next` vía **FlatCompat** (`eslint.config.mjs`) |
 
 ## Estructura del proyecto
 
 ```
 src/
-├── app/                    # App Router: rutas y layouts
-│   ├── (routes)/           # Agrupación de rutas (opcional)
-│   ├── api/                # API Routes
-│   ├── profile/
-│   └── bets/[betId]/
-├── components/             # Componentes reutilizables
-│   ├── ui/                 # Componentes de UI base
-│   └── ...                 # EventCard, BetCard, etc.
-├── data/                   # JSON estáticos (matches.today.json)
-├── lib/                    # Utilidades, datos (matches-data, bets-session, internal-fetch)
-├── types/                  # Tipos alineados con la API/JSON
-└── ...
+├── app/                      # App Router
+│   ├── layout.tsx            # Layout global, Header, ToastProvider
+│   ├── page.tsx              # Home (timeline)
+│   ├── loading.tsx           # Skeleton global
+│   ├── login/page.tsx        # Login credentials
+│   ├── profile/              # Mis apuestas + loading.tsx
+│   ├── bets/[betId]/         # Detalle apuesta + loading.tsx
+│   └── api/
+│       ├── auth/[...nextauth]/route.ts
+│       └── bets/
+│           ├── route.ts      # GET lista, POST crear
+│           └── [betId]/route.ts  # GET detalle, DELETE cancelar
+├── components/
+│   ├── Header.tsx, UserMenu.tsx
+│   ├── HomeTimeline.tsx, MatchCarousel.tsx, MatchCard.tsx, BetCard.tsx
+│   ├── providers/ToastProvider.tsx
+│   └── ui/shared/            # Card, CardHeader, Carousel, OddsButton, ToastContainer
+├── data/matches.today.json   # Partidos del día (mock)
+├── lib/
+│   ├── constants.ts          # Rutas, labels, mensajes UI
+│   ├── helpers.ts            # getOddByPick, formatMatchTime, truncateText, getInitials
+│   ├── matches-data.ts       # Lectura JSON + agrupación por hora
+│   ├── bets-session.ts       # Lógica de apuestas + cookie httpOnly
+│   └── internal-fetch.ts     # Fetch interno reenviando Cookie (RSC → API)
+├── auth.ts / auth.config.ts  # NextAuth (Credentials + callbacks)
+├── middleware.ts             # Protección /profile y /bets/*
+└── types/index.ts            # Dominio + props de componentes
 ```
 
 ## Rutas
